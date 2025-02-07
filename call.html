@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Shift Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .calendar-container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .day {
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            min-height: 100px;
+        }
+        .shift-morning { background-color: #FFF4D6; }
+        .shift-evening { background-color: #D6E4FF; }
+        .shift-night { background-color: #2A3B8F; color: white; }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <header>
+            <h1>September 2024 Schedule</h1>
+            <button id="toggleDarkMode">Toggle Dark Mode</button>
+            <button id="exportCsv">Export CSV</button>
+        </header>
+        <div class="calendar-grid" id="calendar">
+            <!-- Days will be dynamically inserted here -->
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const calendar = document.getElementById("calendar");
+            const daysInMonth = 30;
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayElement = document.createElement("div");
+                dayElement.classList.add("day");
+                dayElement.innerHTML = `<strong>${i}</strong>`;
+                calendar.appendChild(dayElement);
+            }
+
+            document.getElementById("toggleDarkMode").addEventListener("click", function() {
+                document.body.classList.toggle("dark-mode");
+            });
+
+            document.getElementById("exportCsv").addEventListener("click", function() {
+                let csvContent = "data:text/csv;charset=utf-8,Day,Shift\n";
+                document.querySelectorAll(".day").forEach((day, index) => {
+                    csvContent += `${index + 1},Sample Shift\n`;
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "shift_schedule.csv");
+                document.body.appendChild(link);
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
