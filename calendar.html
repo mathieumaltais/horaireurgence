@@ -14,65 +14,66 @@
 </head>
 <body>
     <div class="container">
-       <h1 id="calendar-title">Calendrier de <span id="user-name">...</span></h1>
+       <h1 id="calendar-title">Calendrier de <span id="user-name"></span></h1>
         <p id="availability-info">Chargement des disponibilités...</p>
         <button onclick="logout()">Déconnexion</button>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
-            authDomain: "horaireurgence-a488f.firebaseapp.com",
-            projectId: "horaireurgence-a488f",
-            storageBucket: "horaireurgence-a488f.firebasestorage.app",
-            messagingSenderId: "596792304337",
-            appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
-            measurementId: "G-Z67Y8T809L"
-        };
+     const firebaseConfig = {
+    apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+    authDomain: "horaireurgence-a488f.firebaseapp.com",
+    projectId: "horaireurgence-a488f",
+    storageBucket: "horaireurgence-a488f.firebasestorage.app",
+    messagingSenderId: "596792304337",
+    appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+    measurementId: "G-Z67Y8T809L"
+};
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userEmail = user.email;
-                document.getElementById("calendar-title").innerText = `Calendrier de ${userEmail}`;
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        const userEmail = user.email;
 
-                try {
-                    // ✅ Get User Name from Firestore
-                    const userDoc = await db.collection("users").doc(userEmail).get();
-                    if (userDoc.exists) {
-                        const userName = userDoc.data().name;
-                        document.getElementById("calendar-title").innerText = `Calendrier de ${userName}`;
-                    } else {
-                        console.log("Nom d'utilisateur introuvable, affichage de l'email.");
-                    }
-                } catch (error) {
-                    console.error("Erreur lors de la récupération du nom :", error);
-                }
-
-                loadUserAvailability(userEmail);
-            } else {
-                alert("Veuillez vous connecter !");
-                window.location.href = "/sept-ileslogin.html";
-            }
-        });
-
-        async function loadUserAvailability(email) {
-            const userDoc = await db.collection("availabilities").doc(email).get();
+        try {
+            // ✅ Get User Name from Firestore
+            const userDoc = await db.collection("users").doc(userEmail).get();
             if (userDoc.exists) {
-                document.getElementById("availability-info").innerText = `Disponibilités: ${JSON.stringify(userDoc.data())}`;
+                const userName = userDoc.data().name;
+                document.getElementById("user-name").innerText = userName;
             } else {
-                document.getElementById("availability-info").innerText = "Aucune disponibilité trouvée.";
+                console.log("Nom d'utilisateur introuvable, affichage de l'email.");
+                document.getElementById("user-name").innerText = userEmail; // Fallback to email
             }
+        } catch (error) {
+            console.error("Erreur lors de la récupération du nom :", error);
+            document.getElementById("user-name").innerText = "Utilisateur inconnu";
         }
 
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = "/sept-ileslogin.html";
-            });
-        }
+        loadUserAvailability(userEmail);
+    } else {
+        alert("Veuillez vous connecter !");
+        window.location.href = "/login.html";
+    }
+});
+
+async function loadUserAvailability(email) {
+    const userDoc = await db.collection("availabilities").doc(email).get();
+    if (userDoc.exists) {
+        document.getElementById("availability-info").innerText = `Disponibilités: ${JSON.stringify(userDoc.data())}`;
+    } else {
+        document.getElementById("availability-info").innerText = "Aucune disponibilité trouvée.";
+    }
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        window.location.href = "/login.html";
+    });
+}
     </script>
 </body>
 </html>
