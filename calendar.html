@@ -20,36 +20,45 @@
     </div>
 
     <script>
-        // 🔥 Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+            authDomain: "horaireurgence-a488f.firebaseapp.com",
+            projectId: "horaireurgence-a488f",
+            storageBucket: "horaireurgence-a488f.firebasestorage.app",
+            messagingSenderId: "596792304337",
+            appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+            measurementId: "G-Z67Y8T809L"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ✅ Get User Email from URL
-        function getUserEmailFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get("user");
-        }
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userEmail = user.email;
+                document.getElementById("calendar-title").innerText = `Calendrier de ${userEmail}`;
 
-        const userEmail = getUserEmailFromURL();
-        if (userEmail) {
-            document.getElementById("calendar-title").innerText = `Calendrier de ${userEmail}`;
-            loadUserAvailability(userEmail);
-        } else {
-            alert("Utilisateur non spécifié !");
-            window.location.href = "/login.html"; // Redirect to login if no user found
-        }
+                try {
+                    // ✅ Get User Name from Firestore
+                    const userDoc = await db.collection("users").doc(userEmail).get();
+                    if (userDoc.exists) {
+                        const userName = userDoc.data().name;
+                        document.getElementById("calendar-title").innerText = `Calendrier de ${userName}`;
+                    } else {
+                        console.log("Nom d'utilisateur introuvable, affichage de l'email.");
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération du nom :", error);
+                }
 
-        // ✅ Load Availability for the User
+                loadUserAvailability(userEmail);
+            } else {
+                alert("Veuillez vous connecter !");
+                window.location.href = "/sept-ileslogin.html";
+            }
+        });
+
         async function loadUserAvailability(email) {
             const userDoc = await db.collection("availabilities").doc(email).get();
             if (userDoc.exists) {
@@ -59,12 +68,12 @@
             }
         }
 
-        // ✅ Logout Function
         function logout() {
             auth.signOut().then(() => {
-                window.location.href = "/login.html";
+                window.location.href = "/sept-ileslogin.html";
             });
         }
     </script>
 </body>
 </html>
+
