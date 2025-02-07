@@ -19,62 +19,70 @@
         <button onclick="logout()">Déconnexion</button>
     </div>
 
-    <script>
-     const firebaseConfig = {
-    apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
-    authDomain: "horaireurgence-a488f.firebaseapp.com",
-    projectId: "horaireurgence-a488f",
-    storageBucket: "horaireurgence-a488f.firebasestorage.app",
-    messagingSenderId: "596792304337",
-    appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
-    measurementId: "G-Z67Y8T809L"
-};
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+<script>
+    // ✅ Initialize Firebase AFTER loading SDKs
+    const firebaseConfig = {
+        apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+        authDomain: "horaireurgence-a488f.firebaseapp.com",
+        projectId: "horaireurgence-a488f",
+        storageBucket: "horaireurgence-a488f.firebasestorage.app",
+        messagingSenderId: "596792304337",
+        appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+        measurementId: "G-Z67Y8T809L"
+    };
 
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        const userEmail = user.email;
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        try {
-            // ✅ Get User Name from Firestore
-            const userDoc = await db.collection("users").doc(userEmail).get();
-            if (userDoc.exists) {
-                const userName = userDoc.data().name;
-                document.getElementById("user-name").innerText = userName;
-            } else {
-                console.log("Nom d'utilisateur introuvable, affichage de l'email.");
-                document.getElementById("user-name").innerText = userEmail; // Fallback to email
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userEmail = user.email;
+            console.log("User logged in:", userEmail);
+
+            try {
+                // ✅ Fetch User Name from Firestore
+                const userDoc = await db.collection("users").doc(userEmail).get();
+                if (userDoc.exists) {
+                    const userName = userDoc.data().name;
+                    console.log("User Name from Firestore:", userName);
+                    document.getElementById("user-name").innerText = userName;
+                } else {
+                    console.warn("Nom d'utilisateur introuvable dans Firestore.");
+                    document.getElementById("user-name").innerText = userEmail; // Fallback
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération du nom :", error);
+                document.getElementById("user-name").innerText = "Utilisateur inconnu";
             }
-        } catch (error) {
-            console.error("Erreur lors de la récupération du nom :", error);
-            document.getElementById("user-name").innerText = "Utilisateur inconnu";
+
+            loadUserAvailability(userEmail);
+        } else {
+            alert("Veuillez vous connecter !");
+            window.location.href = "/login.html";
         }
-
-        loadUserAvailability(userEmail);
-    } else {
-        alert("Veuillez vous connecter !");
-        window.location.href = "/login.html";
-    }
-});
-
-async function loadUserAvailability(email) {
-    const userDoc = await db.collection("availabilities").doc(email).get();
-    if (userDoc.exists) {
-        document.getElementById("availability-info").innerText = `Disponibilités: ${JSON.stringify(userDoc.data())}`;
-    } else {
-        document.getElementById("availability-info").innerText = "Aucune disponibilité trouvée.";
-    }
-}
-
-function logout() {
-    auth.signOut().then(() => {
-        window.location.href = "/login.html";
     });
-}
-    </script>
+
+    async function loadUserAvailability(email) {
+        const userDoc = await db.collection("availabilities").doc(email).get();
+        if (userDoc.exists) {
+            document.getElementById("availability-info").innerText = `Disponibilités: ${JSON.stringify(userDoc.data())}`;
+        } else {
+            document.getElementById("availability-info").innerText = "Aucune disponibilité trouvée.";
+        }
+    }
+
+    function logout() {
+        auth.signOut().then(() => {
+            window.location.href = "/login.html";
+        });
+    }
+</script>
 </body>
 </html>
 
