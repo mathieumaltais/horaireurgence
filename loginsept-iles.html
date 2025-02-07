@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Sept-Îles</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,18 +48,61 @@
         button:hover {
             background-color: #044415; /* Dark green hover effect */
         }
+        #error-message {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Sept-Îles</h1>
         <h2>Se connecter</h2>
-        <form action="/process-login" method="POST">
-            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-            <input type="hidden" name="csrf_token" value="your_csrf_token_here"> <!-- CSRF Protection -->
-            <button type="submit">Se connecter</button>
-        </form>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <button onclick="login()">Se connecter</button>
+        <p id="error-message"></p>
     </div>
+
+    <script>
+        // 🔥 Initialize Firebase
+     const firebaseConfig = {
+  apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+  authDomain: "horaireurgence-a488f.firebaseapp.com",
+  projectId: "horaireurgence-a488f",
+  storageBucket: "horaireurgence-a488f.firebasestorage.app",
+  messagingSenderId: "596792304337",
+  appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+  measurementId: "G-Z67Y8T809L"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        async function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Get user role from Firestore
+                const userDoc = await db.collection("users").doc(email).get();
+                const role = userDoc.exists ? userDoc.data().role : "user"; // Default role is "user"
+
+                // Redirect based on role
+                if (role === "admin") {
+                    window.location.href = "/admin-dashboard.html"; // Redirect admin
+                } else {
+                    window.location.href = `/calendar.html?user=${encodeURIComponent(email)}`; // Redirect user to their calendar
+                }
+            } catch (error) {
+                errorMessage.textContent = "Échec de la connexion: " + error.message;
+            }
+        }
+    </script>
 </body>
 </html>
