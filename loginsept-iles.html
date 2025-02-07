@@ -11,13 +11,13 @@
         <h2>Se connecter</h2>
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Mot de passe" required>
-        <button id="loginButton">Se connecter</button>
+        <button onclick="login()">Se connecter</button>
         <p id="error-message"></p>
     </div>
 
     <!-- ✅ Use ES Modules Correctly -->
     <script type="module">
-        // 🔥 Import Firebase Modules
+        // 🔥 Import Firebase Modules (ES Module Syntax)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
@@ -62,12 +62,6 @@
                 errorMessage.textContent = "Échec de la connexion: " + error.message;
             }
         }
-
-        // ✅ Make the function globally accessible
-        window.login = login;
-
-        // ✅ Attach login function to the button click
-        document.getElementById("loginButton").addEventListener("click", login);
     </script>
 </body>
 </html>
