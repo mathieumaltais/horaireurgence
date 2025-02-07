@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 80px;
+            cursor: pointer;
+            background-color: lightgreen;
+        }
+        .weekend {
+            background-color: lightgray !important;
+        }
+        .red { background-color: red !important; }
+        .yellow { background-color: yellow !important; }
+    </style>
+</head>
+<body>
+    <h1>Schedule Calendar</h1>
+    
+    <label for="monthSelect">Select Month:</label>
+    <select id="monthSelect"></select>
+    
+    <label for="yearSelect">Select Year:</label>
+    <select id="yearSelect"></select>
+    
+    <div id="calendar"></div>
+    
+    <div>
+        <label for="shiftCount">Number of Desired Shifts:</label>
+        <input type="number" id="shiftCount" min="0">
+    </div>
+    
+    <div>
+        <label for="comments">Comments:</label>
+        <textarea id="comments" rows="4"></textarea>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const calendar = document.getElementById("calendar");
+            const monthSelect = document.getElementById("monthSelect");
+            const yearSelect = document.getElementById("yearSelect");
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            for (let i = 0; i < months.length; i++) {
+                let option = document.createElement("option");
+                option.value = i;
+                option.textContent = months[i];
+                monthSelect.appendChild(option);
+            }
+            
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i <= currentYear + 4; i++) {
+                let option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+            
+            function generateCalendar(month, year) {
+                calendar.innerHTML = "";
+                let date = new Date(year, month, 1);
+                let firstDay = date.getDay();
+                let daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                for (let i = 0; i < firstDay; i++) {
+                    let emptyDiv = document.createElement("div");
+                    calendar.appendChild(emptyDiv);
+                }
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let dayDiv = document.createElement("div");
+                    dayDiv.classList.add("day");
+                    dayDiv.textContent = day;
+                    
+                    let shiftNames = ["Nuit", "Jour", "Soir"];
+                    shiftNames.forEach(shift => {
+                        let shiftDiv = document.createElement("div");
+                        shiftDiv.textContent = shift;
+                        shiftDiv.classList.add("shift");
+                        shiftDiv.style.backgroundColor = "lightgreen";
+                        shiftDiv.onclick = function() {
+                            if (shiftDiv.style.backgroundColor === "lightgreen") {
+                                shiftDiv.style.backgroundColor = "red";
+                            } else if (shiftDiv.style.backgroundColor === "red") {
+                                shiftDiv.style.backgroundColor = "yellow";
+                            } else {
+                                shiftDiv.style.backgroundColor = "lightgreen";
+                            }
+                        };
+                        dayDiv.appendChild(shiftDiv);
+                    });
+                    
+                    let weekendDays = [0, 6];
+                    let checkDate = new Date(year, month, day);
+                    if (weekendDays.includes(checkDate.getDay())) {
+                        dayDiv.classList.add("weekend");
+                    }
+                    
+                    calendar.appendChild(dayDiv);
+                }
+            }
+            
+            monthSelect.value = new Date().getMonth();
+            yearSelect.value = new Date().getFullYear();
+            generateCalendar(monthSelect.value, yearSelect.value);
+            
+            monthSelect.addEventListener("change", function() {
+                generateCalendar(parseInt(monthSelect.value), parseInt(yearSelect.value));
+            });
+            yearSelect.addEventListener("change", function() {
+                generateCalendar(parseInt(monthSelect.value), parseInt(yearSelect.value));
+            });
+        });
+    </script>
+</body>
+</html>
