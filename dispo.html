@@ -10,13 +10,17 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        #calendar-container {
+            max-width: 800px;
         }
         #calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 5px;
-            max-width: 800px;
-            margin: auto;
         }
         .day {
             border: 1px solid #ccc;
@@ -30,27 +34,46 @@
         }
         .red { background-color: red !important; }
         .yellow { background-color: yellow !important; }
+        #legend {
+            margin-left: 20px;
+            padding: 10px;
+            border: 1px solid #000;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
-    <h1>Schedule Calendar</h1>
-    
-    <label for="monthSelect">Select Month:</label>
-    <select id="monthSelect"></select>
-    
-    <label for="yearSelect">Select Year:</label>
-    <select id="yearSelect"></select>
-    
-    <div id="calendar"></div>
-    
-    <div>
-        <label for="shiftCount">Number of Desired Shifts:</label>
-        <input type="number" id="shiftCount" min="0">
+    <div id="calendar-container">
+        <h1>Schedule Calendar</h1>
+        
+        <button onclick="window.location.href='dispo.html'">Mon Calendrier</button>
+        
+        <label for="monthSelect">Select Month:</label>
+        <select id="monthSelect"></select>
+        
+        <label for="yearSelect">Select Year:</label>
+        <select id="yearSelect"></select>
+        
+        <div id="calendar"></div>
+        
+        <div>
+            <label for="shiftCount">Number of Desired Shifts:</label>
+            <input type="number" id="shiftCount" min="0">
+        </div>
+        
+        <div>
+            <label for="comments">Comments:</label>
+            <textarea id="comments" rows="4"></textarea>
+        </div>
+        
+        <button id="lockButton">Verouiller mes disponibilités</button>
     </div>
     
-    <div>
-        <label for="comments">Comments:</label>
-        <textarea id="comments" rows="4"></textarea>
+    <div id="legend">
+        <h3>Légende</h3>
+        <p>Rouge (Red) : <span id="countRed">0</span></p>
+        <p>Jaune (Yellow) : <span id="countYellow">0</span></p>
+        <p>Vert (Green) : <span id="countGreen">0</span></p>
     </div>
     
     <script>
@@ -58,6 +81,11 @@
             const calendar = document.getElementById("calendar");
             const monthSelect = document.getElementById("monthSelect");
             const yearSelect = document.getElementById("yearSelect");
+            const lockButton = document.getElementById("lockButton");
+            const countRed = document.getElementById("countRed");
+            const countYellow = document.getElementById("countYellow");
+            const countGreen = document.getElementById("countGreen");
+            let isLocked = false;
             const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
             for (let i = 0; i < months.length; i++) {
@@ -73,6 +101,16 @@
                 option.value = i;
                 option.textContent = i;
                 yearSelect.appendChild(option);
+            }
+            
+            function updateLegend() {
+                let redCount = document.querySelectorAll(".red").length;
+                let yellowCount = document.querySelectorAll(".yellow").length;
+                let greenCount = document.querySelectorAll(".shift:not(.red):not(.yellow)").length;
+                
+                countRed.textContent = redCount;
+                countYellow.textContent = yellowCount;
+                countGreen.textContent = greenCount;
             }
             
             function generateCalendar(month, year) {
@@ -98,37 +136,27 @@
                         shiftDiv.classList.add("shift");
                         shiftDiv.style.backgroundColor = "lightgreen";
                         shiftDiv.onclick = function() {
-                            if (shiftDiv.style.backgroundColor === "lightgreen") {
-                                shiftDiv.style.backgroundColor = "red";
-                            } else if (shiftDiv.style.backgroundColor === "red") {
-                                shiftDiv.style.backgroundColor = "yellow";
-                            } else {
-                                shiftDiv.style.backgroundColor = "lightgreen";
+                            if (!isLocked) {
+                                if (shiftDiv.style.backgroundColor === "lightgreen") {
+                                    shiftDiv.style.backgroundColor = "red";
+                                } else if (shiftDiv.style.backgroundColor === "red") {
+                                    shiftDiv.style.backgroundColor = "yellow";
+                                } else {
+                                    shiftDiv.style.backgroundColor = "lightgreen";
+                                }
+                                updateLegend();
                             }
                         };
                         dayDiv.appendChild(shiftDiv);
                     });
-                    
-                    let weekendDays = [0, 6];
-                    let checkDate = new Date(year, month, day);
-                    if (weekendDays.includes(checkDate.getDay())) {
-                        dayDiv.classList.add("weekend");
-                    }
-                    
                     calendar.appendChild(dayDiv);
                 }
+                updateLegend();
             }
             
             monthSelect.value = new Date().getMonth();
             yearSelect.value = new Date().getFullYear();
             generateCalendar(monthSelect.value, yearSelect.value);
-            
-            monthSelect.addEventListener("change", function() {
-                generateCalendar(parseInt(monthSelect.value), parseInt(yearSelect.value));
-            });
-            yearSelect.addEventListener("change", function() {
-                generateCalendar(parseInt(monthSelect.value), parseInt(yearSelect.value));
-            });
         });
     </script>
 </body>
