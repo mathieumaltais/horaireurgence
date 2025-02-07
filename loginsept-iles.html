@@ -4,55 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Sept-Îles</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            width: 90%;
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #05551e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #044415; /* Dark green hover effect */
-        }
-        #error-message {
-            color: red;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -64,6 +15,53 @@
         <p id="error-message"></p>
     </div>
 
-<script src="login.js"></script>
+    <!-- ✅ Use ES Modules Correctly -->
+    <script type="module">
+        // 🔥 Import Firebase Modules (ES Module Syntax)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+
+        // ✅ Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+            authDomain: "horaireurgence-a488f.firebaseapp.com",
+            projectId: "horaireurgence-a488f",
+            storageBucket: "horaireurgence-a488f.appspot.com",
+            messagingSenderId: "596792304337",
+            appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+            measurementId: "G-Z67Y8T809L"
+        };
+
+        // ✅ Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ✅ Login Function
+        async function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // ✅ Get user role from Firestore
+                const userDoc = await getDoc(doc(db, "users", email));
+                const role = userDoc.exists() ? userDoc.data().role : "user"; // Default role is "user"
+
+                // ✅ Redirect based on role
+                if (role === "admin") {
+                    window.location.href = "/admin-dashboard.html"; // Redirect admin
+                } else {
+                    window.location.href = `/calendar.html?user=${encodeURIComponent(email)}`; // Redirect user to their calendar
+                }
+            } catch (error) {
+                errorMessage.textContent = "Échec de la connexion: " + error.message;
+            }
+        }
+    </script>
 </body>
 </html>
