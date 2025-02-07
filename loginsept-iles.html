@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Sept-Îles</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .container { width: 90%; max-width: 400px; margin: 100px auto; padding: 20px; background: white; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background-color: #05551e; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #044415; }
+        #error-message { color: red; margin-top: 10px; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,14 +23,14 @@
         <p id="error-message"></p>
     </div>
 
-    <!-- ✅ Use ES Modules Correctly -->
+    <!-- ✅ Load Firebase SDK -->
     <script type="module">
         // 🔥 Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
 
-        // ✅ Firebase Configuration
+        // ✅ Firebase Configuration (USE YOUR DATABASE CONFIG)
         const firebaseConfig = {
             apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
             authDomain: "horaireurgence-a488f.firebaseapp.com",
@@ -45,25 +53,29 @@
             const errorMessage = document.getElementById("error-message");
 
             try {
+                // 🔹 Authenticate User
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // ✅ Get user role from Firestore
+                // 🔹 Fetch Role from Firestore
                 const userDoc = await getDoc(doc(db, "users", email));
-                const role = userDoc.exists() ? userDoc.data().role : "user"; // Default role is "user"
+                if (!userDoc.exists()) {
+                    throw new Error("Utilisateur non trouvé dans Firestore.");
+                }
+                const role = userDoc.data().role;
 
-                // ✅ Redirect based on role
+                // 🔹 Redirect Based on Role
                 if (role === "admin") {
-                    window.location.href = "/admin-dashboard.html"; // Redirect admin
+                    window.location.href = "/admin-dashboard.html"; // Admin Page
                 } else {
-                    window.location.href = `/calendar.html?user=${encodeURIComponent(email)}`; // Redirect user to their calendar
+                    window.location.href = `/calendar.html?user=${encodeURIComponent(email)}`; // User Calendar
                 }
             } catch (error) {
                 errorMessage.textContent = "Échec de la connexion: " + error.message;
             }
         }
 
-        // ✅ Attach the login function to the button
+        // ✅ Attach Login Function to Button
         document.getElementById("loginButton").addEventListener("click", login);
     </script>
 </body>
