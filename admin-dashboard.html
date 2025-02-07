@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Master User!</h1>
+    <p>You can manage shifts and users here.</p>
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
+
+async function loadAllCalendars() {
+  const usersCollection = await getDocs(collection(db, "users"));
+  
+  usersCollection.forEach(doc => {
+    const userData = doc.data();
+    const calendarLink = document.createElement("a");
+    calendarLink.href = `/calendar.html?user=${doc.id}`;
+    calendarLink.innerText = `View ${doc.id}'s Calendar`;
+    document.body.appendChild(calendarLink);
+  });
+}
+
+loadAllCalendars();
+</body>
+</html>
