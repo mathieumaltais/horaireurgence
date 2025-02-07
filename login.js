@@ -1,15 +1,16 @@
 // 🔥 Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
-  authDomain: "horaireurgence-a488f.firebaseapp.com",
-  projectId: "horaireurgence-a488f",
-  storageBucket: "horaireurgence-a488f.firebasestorage.app",
-  messagingSenderId: "596792304337",
-  appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
-  measurementId: "G-Z67Y8T809L"
-};
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDwCt973qhUxk1_5UqTNDy82pef2GQFcc",
+    authDomain: "horaireurgence-a488f.firebaseapp.com",
+    projectId: "horaireurgence-a488f",
+    storageBucket: "horaireurgence-a488f.firebasestorage.app",
+    messagingSenderId: "596792304337",
+    appId: "1:596792304337:web:0dcd3e0b77b374343a9bf0",
+    measurementId: "G-Z67Y8T809L"
+  };
+
+// ✅ Initialize Firebase FIRST before using auth or db
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -36,4 +37,5 @@ async function login() {
     } catch (error) {
         errorMessage.textContent = "Échec de la connexion: " + error.message;
     }
+}
 }
